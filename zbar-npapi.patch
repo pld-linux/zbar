@@ -1,0 +1,23 @@
+--- zbar-0.10/configure.ac.orig	2009-10-23 20:16:44.000000000 +0200
++++ zbar-0.10/configure.ac	2010-12-31 08:51:29.354118583 +0100
+@@ -301,8 +301,8 @@
+   [with_npapi="no"])
+ 
+ AS_IF([test "x$with_npapi" != "xno"],
+-  [PKG_CHECK_MODULES([NPAPI], [firefox-plugin])
+-   NPAPI_VERSION=`$PKG_CONFIG firefox-plugin --modversion`
++  [PKG_CHECK_MODULES([NPAPI], [mozilla-plugin])
++   NPAPI_VERSION=`$PKG_CONFIG mozilla-plugin --modversion`
+    AC_MSG_NOTICE([using firefox-plugin version $NPAPI_VERSION])])
+ 
+ AM_CONDITIONAL([HAVE_NPAPI], [test "x$with_npapi" = "xyes"])
+--- zbar-0.10/plugin/Makefile.am.inc.orig	2009-10-23 20:16:44.000000000 +0200
++++ zbar-0.10/plugin/Makefile.am.inc	2010-12-31 09:37:49.426114393 +0100
+@@ -1,5 +1,5 @@
+ lib_LTLIBRARIES += plugin/libzbarplugin.la
+ plugin_libzbarplugin_la_SOURCES = \
+    plugin/plugin.c
+-plugin_libzbarplugin_la_CPPFLAGS = $(MOZILLA_CFLAGS) $(AM_CPPFLAGS)
+-plugin_libzbarplugin_la_LDFLAGS = $(MOZILLA_LIBS) $(AM_LDFLAGS)
++plugin_libzbarplugin_la_CPPFLAGS = $(NPAPI_CFLAGS) $(AM_CPPFLAGS)
++plugin_libzbarplugin_la_LDFLAGS = $(NPAPI_LIBS) $(AM_LDFLAGS)
