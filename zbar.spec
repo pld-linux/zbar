@@ -21,6 +21,7 @@ BuildRequires:	QtCore-devel >= 4
 BuildRequires:	QtGui-devel >= 4
 BuildRequires:	autoconf >= 2.61
 BuildRequires:	automake >= 1:1.10
+BuildRequires:	gettext-devel
 BuildRequires:	gtk+2-devel >= 2.0
 BuildRequires:	libjpeg-devel
 BuildRequires:	libtool >= 2:2.2
@@ -28,9 +29,10 @@ BuildRequires:	perl-devel >= 1:5.8.0
 BuildRequires:	pkgconfig
 BuildRequires:	python-devel >= 2.3.5
 BuildRequires:	python-pygtk-devel >= 2:2.0
-BuildRequires:	rpm-perlprov >= 4.1-13
-BuildRequires:	rpmbuild(macros) >= 1.357
 BuildRequires:	qt4-build >= 4
+BuildRequires:	rpm-perlprov >= 4.1-13
+BuildRequires:	rpm-pythonprov
+BuildRequires:	rpmbuild(macros) >= 1.357
 BuildRequires:	xorg-lib-libXext-devel
 BuildRequires:	xorg-lib-libXv-devel
 Requires:	ImageMagick-libs >= 1:6.2.6
@@ -48,12 +50,12 @@ Perl as well as GUI widgets for Qt, GTK+ and PyGTK.
 
 %description -l pl.UTF-8
 ZBar Bar Code Reader to zestaw oprogramowania do odczytu kodów
-paskowych z różnych źródeł, takich jak strumienie wideo, pliki
-obrazów oraz czujniki jasności. Obsługuje kody EAN-13/UPC-A, UPC-E,
-EAN-8, Code 128, Code 39, Interleaved 2 of 5 oraz QR Code. Do
-biblioteki dołączone są podstawowe aplikacje do dekodowania wyłapanych
-obrazów kodów paskowych oraz używania urządzeń wejściowych obrazu (np.
-kamer internetowych) jako skanera kodów paskowych. Dla programistów są
+paskowych z różnych źródeł, takich jak strumienie wideo, pliki obrazów
+oraz czujniki jasności. Obsługuje kody EAN-13/UPC-A, UPC-E, EAN-8,
+Code 128, Code 39, Interleaved 2 of 5 oraz QR Code. Do biblioteki
+dołączone są podstawowe aplikacje do dekodowania wyłapanych obrazów
+kodów paskowych oraz używania urządzeń wejściowych obrazu (np. kamer
+internetowych) jako skanera kodów paskowych. Dla programistów są
 dostępne też wiązania dla C, C++, Pythona, Perla oraz widgety GUI dla
 Qt, GTK+ oraz PyGTK.
 
