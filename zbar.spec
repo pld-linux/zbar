@@ -8,14 +8,16 @@ Summary:	ZBar Bar Code Reader
 Summary(pl.UTF-8):	ZBar - czytnik kodów paskowych
 Name:		zbar
 Version:	0.10
-Release:	8
+Release:	9
 License:	LGPL v2.1+
 Group:		Libraries
 Source0:	http://downloads.sourceforge.net/zbar/%{name}-%{version}.tar.bz2
 # Source0-md5:	0fd61eb590ac1bab62a77913c8b086a5
-Patch0:		%{name}-link.patch
-Patch1:		%{name}-npapi.patch
-Patch2:		%{name}-no-v4l1.patch
+Patch0:		zbar_update_to_hg.patch
+Patch1:		%{name}-link.patch
+Patch2:		%{name}-npapi.patch
+Patch3:		zbar_use_libv4l.patch
+Patch4:		%{name}-ac.patch
 URL:		http://zbar.sourceforge.net/
 BuildRequires:	ImageMagick-devel >= 1:6.2.6
 BuildRequires:	QtCore-devel >= 4
@@ -26,6 +28,7 @@ BuildRequires:	gettext-devel
 BuildRequires:	gtk+2-devel >= 2.0
 BuildRequires:	libjpeg-devel
 BuildRequires:	libtool >= 2:2.2
+BuildRequires:	libv4l-devel
 BuildRequires:	perl-devel >= 1:5.8.0
 BuildRequires:	pkgconfig
 BuildRequires:	python-devel >= 2.3.5
@@ -225,6 +228,8 @@ Wtyczka ZBar dla przeglądarek WWW.
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
+%patch4 -p1
 
 %build
 %{__libtoolize}
