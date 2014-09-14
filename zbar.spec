@@ -372,7 +372,6 @@ fi
 %{perl_vendorarch}/Barcode/ZBar.pm
 %dir %{perl_vendorarch}/auto/Barcode
 %dir %{perl_vendorarch}/auto/Barcode/ZBar
-%{perl_vendorarch}/auto/Barcode/ZBar/ZBar.bs
 %attr(755,root,root) %{perl_vendorarch}/auto/Barcode/ZBar/ZBar.so
 %{_mandir}/man3/Barcode::ZBar*.3pm*
 
