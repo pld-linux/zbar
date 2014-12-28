@@ -24,7 +24,7 @@ BuildRequires:	QtCore-devel >= 4
 BuildRequires:	QtGui-devel >= 4
 BuildRequires:	autoconf >= 2.61
 BuildRequires:	automake >= 1:1.10
-BuildRequires:	gettext-devel
+BuildRequires:	gettext-tools
 BuildRequires:	gtk+2-devel >= 2.0
 BuildRequires:	libjpeg-devel
 BuildRequires:	libtool >= 2:2.2
