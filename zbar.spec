@@ -1,45 +1,67 @@
 #
 # Conditional build:
-%bcond_with	npapi	# NPAPI plugin (nothing really yet)
-%bcond_with	tests	# perform "make test" for perl module (needs X display)
+%bcond_with	java	# Java interface [some file missing]
+%bcond_with	npapi	# NPAPI plugin for Firefox/OpenOffice [nothing really yet]
+%bcond_without	qt	# Qt widget (Qt5 or Qt4)
+%bcond_with	qt4	# Qt4 instead of Qt5
+%bcond_with	tests	# "make test" for Perl module [needs X display]
 #
 %include	/usr/lib/rpm/macros.perl
 Summary:	ZBar Bar Code Reader
 Summary(pl.UTF-8):	ZBar - czytnik kodów paskowych
 Name:		zbar
-Version:	0.10
-Release:	20
+Version:	0.20
+Release:	1
 License:	LGPL v2.1+
 Group:		Libraries
-Source0:	http://downloads.sourceforge.net/zbar/%{name}-%{version}.tar.bz2
-# Source0-md5:	0fd61eb590ac1bab62a77913c8b086a5
-Patch0:		zbar_update_to_hg.patch
+# no releases since 2009
+#Source0:	http://downloads.sourceforge.net/zbar/%{name}-%{version}.tar.bz2
+# non-maintainer release
+Source0:	https://linuxtv.org/downloads/zbar/%{name}-%{version}.tar.bz2
+# Source0-md5:	116805d44246e288f1f42729950878bf
+#Patch0:		zbar_update_to_hg.patch
+Patch0:		%{name}-sh.patch
 Patch1:		%{name}-link.patch
 Patch2:		%{name}-npapi.patch
-Patch3:		zbar_use_libv4l.patch
-Patch4:		%{name}-ac.patch
-Patch5:		imagemagick7.patch
+#Patch3:		zbar_use_libv4l.patch
+#Patch3:		%{name}-ac.patch
+Patch3:		imagemagick7.patch
 URL:		http://zbar.sourceforge.net/
 BuildRequires:	ImageMagick-devel >= 1:6.2.6
-BuildRequires:	QtCore-devel >= 4
-BuildRequires:	QtGui-devel >= 4
-BuildRequires:	autoconf >= 2.61
-BuildRequires:	automake >= 1:1.10
+BuildRequires:	autoconf >= 2.68
+BuildRequires:	automake >= 1:1.13
 BuildRequires:	gettext-tools
 BuildRequires:	gtk+2-devel >= 2.0
+%{?with_java:BuildRequires:	jdk}
 BuildRequires:	libjpeg-devel
+BuildRequires:	libstdc++-devel
 BuildRequires:	libtool >= 2:2.2
 BuildRequires:	libv4l-devel
 BuildRequires:	perl-devel >= 1:5.8.0
 BuildRequires:	pkgconfig
+%{?with_npapi:BuildRequires:	pkgconfig(mozilla-plugin)}
 BuildRequires:	python-devel >= 2.3.5
 BuildRequires:	python-pygtk-devel >= 2:2.0
-BuildRequires:	qt4-build >= 4
 BuildRequires:	rpm-perlprov >= 4.1-13
 BuildRequires:	rpm-pythonprov
 BuildRequires:	rpmbuild(macros) >= 1.357
+BuildRequires:	xmlto
+BuildRequires:	xorg-lib-libX11-devel
 BuildRequires:	xorg-lib-libXext-devel
 BuildRequires:	xorg-lib-libXv-devel
+%if %{with qt}
+%if %{with qt4}
+BuildRequires:	QtCore-devel >= 4
+BuildRequires:	QtGui-devel >= 4
+BuildRequires:	qt4-build >= 4
+%else
+BuildRequires:	Qt5Core-devel >= 5
+BuildRequires:	Qt5Gui-devel >= 5
+BuildRequires:	Qt5Widgets-devel >= 5
+BuildRequires:	Qt5X11Extras-devel >= 5
+BuildRequires:	qt5-build >= 5
+%endif
+%endif
 Requires:	ImageMagick-libs >= 1:6.2.6
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -149,8 +171,15 @@ Summary(pl.UTF-8):	Plik nagłówkowy widgetu Qt4 do skanowania i dekodowania kod
 Group:		X11/Development/Libraries
 Requires:	%{name}-devel = %{version}-%{release}
 Requires:	%{name}-qt = %{version}-%{release}
+%if %{with qt4}
 Requires:	QtCore-devel >= 4
 Requires:	QtGui-devel >= 4
+%else
+Requires:	Qt5Core >= 5
+Requires:	Qt5Gui >= 5
+Requires:	Qt5Widgets >= 5
+Requires:	Qt5X11Extras >= 5
+%endif
 
 %description qt-devel
 Header file for bar code scanning and decoding Qt4 widget.
@@ -229,9 +258,10 @@ Wtyczka ZBar dla przeglądarek WWW.
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
+#patch4 -p1
+%if "%(rpm -q ImageMagick-devel --qf '%{VERSION}')" >= "7"
 %patch3 -p1
-%patch4 -p1
-%patch5 -p1
+%endif
 
 %build
 %{__libtoolize}
@@ -239,8 +269,12 @@ Wtyczka ZBar dla przeglądarek WWW.
 %{__autoconf}
 %{__autoheader}
 %{__automake}
+# for ">>" in nested template usage
+CXXFLAGS="%{rpmcxxflags} -std=c++11"
 %configure \
-	--without-java \
+	%{!?with_java:--without-java} \
+	%{!?with_qt:--without-qt} \
+	%{?with_qt4:--without-qt5} \
 	%{?with_npapi:--with-npapi}
 %{__make}
 
@@ -277,7 +311,7 @@ rmdir $RPM_BUILD_ROOT%{perl_vendorarch}/Barcode/ZBar
 
 %if %{with npapi}
 install -d $RPM_BUILD_ROOT%{_browserpluginsdir}
-mv $RPM_BUILD_ROOT%{_libdir}/libzbarplugin.so* $RPM_BUILD_ROOT%{_browserpluginsdir}
+%{__mv} $RPM_BUILD_ROOT%{_libdir}/libzbarplugin.so* $RPM_BUILD_ROOT%{_browserpluginsdir}
 %{__rm} $RPM_BUILD_ROOT%{_libdir}/libzbarplugin.{la,a}
 %endif
 
@@ -338,6 +372,7 @@ fi
 
 %files gtk
 %defattr(644,root,root,755)
+%attr(755,root,root) %{_bindir}/zbarcam-gtk
 %attr(755,root,root) %{_libdir}/libzbargtk.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libzbargtk.so.0
 
@@ -352,8 +387,10 @@ fi
 %defattr(644,root,root,755)
 %{_libdir}/libzbargtk.a
 
+%if %{with qt}
 %files qt
 %defattr(644,root,root,755)
+%attr(755,root,root) %{_bindir}/zbarcam-qt
 %attr(755,root,root) %{_libdir}/libzbarqt.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libzbarqt.so.0
 
@@ -368,6 +405,7 @@ fi
 %files qt-static
 %defattr(644,root,root,755)
 %{_libdir}/libzbarqt.a
+%endif
 
 %files -n perl-Barcode-ZBar
 %defattr(644,root,root,755)
