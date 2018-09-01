@@ -10,21 +10,18 @@
 Summary:	ZBar Bar Code Reader
 Summary(pl.UTF-8):	ZBar - czytnik kodów paskowych
 Name:		zbar
-Version:	0.20
-Release:	8
+Version:	0.20.1
+Release:	1
 License:	LGPL v2.1+
 Group:		Libraries
 # no releases since 2009
 #Source0:	http://downloads.sourceforge.net/zbar/%{name}-%{version}.tar.bz2
 # non-maintainer release
 Source0:	https://linuxtv.org/downloads/zbar/%{name}-%{version}.tar.bz2
-# Source0-md5:	116805d44246e288f1f42729950878bf
-#Patch0:		zbar_update_to_hg.patch
+# Source0-md5:	dc0f8bc6d310fa50a6b9710fdb1690c1
 Patch0:		%{name}-sh.patch
 Patch1:		%{name}-link.patch
 Patch2:		%{name}-npapi.patch
-#Patch3:		zbar_use_libv4l.patch
-#Patch3:		%{name}-ac.patch
 Patch3:		imagemagick7.patch
 URL:		http://zbar.sourceforge.net/
 BuildRequires:	ImageMagick-devel >= 1:6.2.6
@@ -258,7 +255,6 @@ Wtyczka ZBar dla przeglądarek WWW.
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
-#patch4 -p1
 %if "%(rpm -q ImageMagick-devel --qf '%{VERSION}')" >= "7"
 %patch3 -p1
 %endif
