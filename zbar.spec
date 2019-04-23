@@ -10,15 +10,15 @@
 Summary:	ZBar Bar Code Reader
 Summary(pl.UTF-8):	ZBar - czytnik kodów paskowych
 Name:		zbar
-Version:	0.20.1
-Release:	3
+Version:	0.22
+Release:	1
 License:	LGPL v2.1+
 Group:		Libraries
 # no releases since 2009
 #Source0:	http://downloads.sourceforge.net/zbar/%{name}-%{version}.tar.bz2
 # non-maintainer release
 Source0:	https://linuxtv.org/downloads/zbar/%{name}-%{version}.tar.bz2
-# Source0-md5:	dc0f8bc6d310fa50a6b9710fdb1690c1
+# Source0-md5:	5f767d8a237b03988193adcc2a44eecf
 Patch0:		%{name}-sh.patch
 Patch1:		%{name}-link.patch
 Patch2:		%{name}-npapi.patch
@@ -27,6 +27,7 @@ URL:		http://zbar.sourceforge.net/
 BuildRequires:	ImageMagick-devel >= 1:6.2.6
 BuildRequires:	autoconf >= 2.68
 BuildRequires:	automake >= 1:1.13
+BuildRequires:	dbus-devel >= 1.0
 BuildRequires:	gettext-tools
 BuildRequires:	gtk+2-devel >= 2.0
 %{?with_java:BuildRequires:	jdk}
@@ -268,6 +269,7 @@ Wtyczka ZBar dla przeglądarek WWW.
 # for ">>" in nested template usage
 CXXFLAGS="%{rpmcxxflags} -std=c++11"
 %configure \
+	--disable-silent-rules \
 	%{!?with_java:--without-java} \
 	%{!?with_qt:--without-qt} \
 	%{?with_qt4:--without-qt5} \
@@ -334,11 +336,13 @@ fi
 %files
 %defattr(644,root,root,755)
 # COPYING contains license summary, not LGPL text
-%doc COPYING ChangeLog NEWS README TODO
+%doc COPYING ChangeLog NEWS README.md TODO
 %attr(755,root,root) %{_bindir}/zbarcam
 %attr(755,root,root) %{_bindir}/zbarimg
 %attr(755,root,root) %{_libdir}/libzbar.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libzbar.so.0
+# for zbarcam
+/etc/dbus-1/system.d/org.linuxtv.Zbar.conf
 %dir %{_datadir}/%{name}
 %{_mandir}/man1/zbarcam.1*
 %{_mandir}/man1/zbarimg.1*
