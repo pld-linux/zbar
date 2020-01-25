@@ -8,7 +8,6 @@
 %bcond_with	qt4	# Qt4 instead of Qt5
 %bcond_with	tests	# "make test" for Perl module [needs X display]
 #
-%include	/usr/lib/rpm/macros.perl
 Summary:	ZBar Bar Code Reader
 Summary(pl.UTF-8):	ZBar - czytnik kodów paskowych
 Name:		zbar
