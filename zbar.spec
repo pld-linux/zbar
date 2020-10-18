@@ -4,6 +4,7 @@
 %bcond_with	java	# Java interface [some file missing]
 %bcond_with	npapi	# NPAPI plugin for Firefox/OpenOffice [nothing really yet]
 %bcond_with	gtk2	# GTK+ 2.x instead of 2.x
+%bcond_without	perl	# Perl module
 %bcond_with	python2	# Python 2.x module
 %bcond_without	python3	# Python 3.x module
 %bcond_without	qt	# Qt widget (Qt5 or Qt4)
@@ -45,7 +46,7 @@ BuildRequires:	libjpeg-devel
 BuildRequires:	libstdc++-devel
 BuildRequires:	libtool >= 2:2.2
 BuildRequires:	libv4l-devel
-BuildRequires:	perl-devel >= 1:5.8.0
+%{?with_perl:BuildRequires:	perl-devel >= 1:5.8.0}
 BuildRequires:	pkgconfig
 %{?with_npapi:BuildRequires:	pkgconfig(mozilla-plugin)}
 %if %{with python2}
@@ -305,6 +306,7 @@ CXXFLAGS="%{rpmcxxflags} -std=c++11"
 	%{?with_npapi:--with-npapi}
 %{__make}
 
+%if %{with perl}
 TOPDIR=$(pwd)
 cd perl
 %{__perl} Makefile.PL \
@@ -317,6 +319,7 @@ cd perl
 	OPTIMIZE="%{rpmcflags}"
 
 %{?with_tests:%{__make} test}
+%endif
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -337,6 +340,7 @@ install -d $RPM_BUILD_ROOT%{_datadir}/%{name}
 %{__rm} $RPM_BUILD_ROOT%{py3_sitedir}/*.la
 %endif
 
+%if %{with perl}
 %{__make} -C perl install \
 	DESTDIR=$RPM_BUILD_ROOT
 
@@ -345,6 +349,7 @@ install -d $RPM_BUILD_ROOT%{_datadir}/%{name}
 rmdir $RPM_BUILD_ROOT%{perl_vendorarch}/Barcode/ZBar
 %{__rm} $RPM_BUILD_ROOT%{perl_vendorarch}/auto/Barcode/ZBar/.packlist
 %{__rm} $RPM_BUILD_ROOT%{perl_archlib}/perllocal.pod
+%endif
 
 %if %{with npapi}
 install -d $RPM_BUILD_ROOT%{_browserpluginsdir}
@@ -445,6 +450,7 @@ fi
 %{_libdir}/libzbarqt.a
 %endif
 
+%if %{with perl}
 %files -n perl-Barcode-ZBar
 %defattr(644,root,root,755)
 %dir %{perl_vendorarch}/Barcode
@@ -453,6 +459,7 @@ fi
 %dir %{perl_vendorarch}/auto/Barcode/ZBar
 %attr(755,root,root) %{perl_vendorarch}/auto/Barcode/ZBar/ZBar.so
 %{_mandir}/man3/Barcode::ZBar*.3pm*
+%endif
 
 %if %{with python2}
 %files -n python-zbar
