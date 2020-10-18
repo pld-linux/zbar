@@ -1,24 +1,20 @@
-# TODO: both python2 and python3 in same build?
 #
 # Conditional build:
 %bcond_with	java	# Java interface [some file missing]
 %bcond_with	npapi	# NPAPI plugin for Firefox/OpenOffice [nothing really yet]
 %bcond_with	gtk2	# GTK+ 2.x instead of 2.x
 %bcond_without	perl	# Perl module
-%bcond_with	python2	# Python 2.x module
+%bcond_without	python2	# Python 2.x module
 %bcond_without	python3	# Python 3.x module
 %bcond_without	qt	# Qt widget (Qt5 or Qt4)
 %bcond_with	qt4	# Qt4 instead of Qt5
 %bcond_with	tests	# "make test" for Perl module [needs X display]
 #
-%if %{with python2}
-%undefine	with_python3
-%endif
 Summary:	ZBar Bar Code Reader
 Summary(pl.UTF-8):	ZBar - czytnik kodów paskowych
 Name:		zbar
 Version:	0.23.1
-Release:	2
+Release:	3
 License:	LGPL v2.1+
 Group:		Libraries
 # no releases since 2009
@@ -296,15 +292,22 @@ Wtyczka ZBar dla przeglądarek WWW.
 %{__automake}
 # for ">>" in nested template usage
 CXXFLAGS="%{rpmcxxflags} -std=c++11"
-%configure \
+
+for pythonbuild in %{?with_python2:python2} %{?with_python3:python3} %{!?with_python2:%{!?with_python3:no}} ; do
+builddir=build-${pythonbuild}
+install -d "$builddir"
+cd "$builddir"
+../%configure \
 	--disable-silent-rules \
 	%{?with_gtk2:--with-gtk=gtk2} \
 	%{!?with_java:--without-java} \
-	--with-python=%{?with_python2:python2}%{?with_python3:python3}%{!?with_python2:%{!?with_python3:no}} \
+	--with-python=$pythonbuild \
 	%{!?with_qt:--without-qt} \
 	%{?with_qt4:--without-qt5} \
 	%{?with_npapi:--with-npapi}
 %{__make}
+cd ..
+done
 
 %if %{with perl}
 TOPDIR=$(pwd)
@@ -312,7 +315,7 @@ cd perl
 %{__perl} Makefile.PL \
 	INSTALLDIRS=vendor \
 	INC="-I${TOPDIR}/include" \
-	LIBS="-L${TOPDIR}/zbar/.libs -lzbar"
+	LIBS="-L${TOPDIR}/$builddir/zbar/.libs -lzbar"
 
 %{__make} \
 	CC="%{__cc}" \
@@ -325,8 +328,11 @@ cd perl
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT%{_datadir}/%{name}
 
-%{__make} install \
+for pythonbuild in %{?with_python2:python2} %{?with_python3:python3} %{!?with_python2:%{!?with_python3:no}} ; do
+builddir=build-${pythonbuild}
+%{__make} -C "$builddir" install \
 	DESTDIR=$RPM_BUILD_ROOT
+done
 
 # obsoleted by pkg-config
 %{__rm} $RPM_BUILD_ROOT%{_libdir}/libzbar*.la
