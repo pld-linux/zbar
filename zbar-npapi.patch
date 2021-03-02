@@ -1,6 +1,7 @@
---- zbar-0.10/configure.ac.orig	2009-10-23 20:16:44.000000000 +0200
-+++ zbar-0.10/configure.ac	2010-12-31 08:51:29.354118583 +0100
-@@ -301,8 +301,8 @@
+diff -urNp -x '*.orig' zbar-0.23.90.org/configure.ac zbar-0.23.90/configure.ac
+--- zbar-0.23.90.org/configure.ac	2021-03-02 23:13:39.976344894 +0100
++++ zbar-0.23.90/configure.ac	2021-03-02 23:13:40.129677725 +0100
+@@ -485,8 +485,8 @@ AC_ARG_WITH([npapi],
    [with_npapi="no"])
  
  AS_IF([test "x$with_npapi" != "xno"],
@@ -11,8 +12,9 @@
     AC_MSG_NOTICE([using firefox-plugin version $NPAPI_VERSION])])
  
  AM_CONDITIONAL([HAVE_NPAPI], [test "x$with_npapi" = "xyes"])
---- zbar-0.10/plugin/Makefile.am.inc.orig	2009-10-23 20:16:44.000000000 +0200
-+++ zbar-0.10/plugin/Makefile.am.inc	2010-12-31 09:37:49.426114393 +0100
+diff -urNp -x '*.orig' zbar-0.23.90.org/plugin/Makefile.am.inc zbar-0.23.90/plugin/Makefile.am.inc
+--- zbar-0.23.90.org/plugin/Makefile.am.inc	2021-02-13 10:39:00.000000000 +0100
++++ zbar-0.23.90/plugin/Makefile.am.inc	2021-03-02 23:13:40.129677725 +0100
 @@ -1,5 +1,5 @@
  lib_LTLIBRARIES += plugin/libzbarplugin.la
  plugin_libzbarplugin_la_SOURCES = \

@@ -1,6 +1,7 @@
---- zbar-0.10/configure.ac.orig	2009-10-23 20:16:44.000000000 +0200
-+++ zbar-0.10/configure.ac	2010-12-31 08:51:29.354118583 +0100
-@@ -198,7 +198,7 @@
+diff -urNp -x '*.orig' zbar-0.23.90.org/configure.ac zbar-0.23.90/configure.ac
+--- zbar-0.23.90.org/configure.ac	2021-03-02 23:13:39.643012652 +0100
++++ zbar-0.23.90/configure.ac	2021-03-02 23:13:39.793012161 +0100
+@@ -277,7 +277,7 @@ configure --without-xshm to disable the
         [with_xshm="yes"],
         [AC_MSG_FAILURE([unable to find XShmQueryVersion in $XSHM_LIBS!
  specify XSHM_LIBS or configure --without-xshm to disable the extension])],
@@ -9,7 +10,7 @@
     ])
  ])
  AM_CONDITIONAL([HAVE_XSHM], [test "x$with_xshm" = "xyes"])
-@@ -226,7 +226,7 @@
+@@ -305,7 +305,7 @@ configure --without-xv to disable the ex
         [with_xv="yes"],
         [AC_MSG_FAILURE([unable to find XvQueryExtension in $XV_LIBS!
  specify XV_LIBS or configure --without-xv to disable the extension])],
