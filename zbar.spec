@@ -2,7 +2,7 @@
 # Conditional build:
 %bcond_with	java	# Java interface [some file missing]
 %bcond_with	npapi	# NPAPI plugin for Firefox/OpenOffice [nothing really yet]
-%bcond_with	gtk2	# GTK+ 2.x instead of 2.x
+%bcond_with	gtk2	# GTK+ 2.x instead of 3.x
 %bcond_without	perl	# Perl module
 %bcond_without	python2	# Python 2.x module
 %bcond_without	python3	# Python 3.x module
@@ -13,19 +13,16 @@
 Summary:	ZBar Bar Code Reader
 Summary(pl.UTF-8):	ZBar - czytnik kodów paskowych
 Name:		zbar
-Version:	0.23.90
-Release:	6
+Version:	0.23.92
+Release:	1
 License:	LGPL v2.1+
 Group:		Libraries
-# no releases since 2009
-#Source0:	http://downloads.sourceforge.net/zbar/%{name}-%{version}.tar.bz2
-# non-maintainer release
-Source0:	https://linuxtv.org/downloads/zbar/%{name}-%{version}.tar.bz2
-# Source0-md5:	5acc043376cad65e8c6a8b0a5eed7e1b
+#Source0Download: https://github.com/mchehab/zbar/releases
+Source0:	https://github.com/mchehab/zbar/archive/%{version}/%{name}-%{version}.tar.gz
+# Source0-md5:	dabc49973afbc7daa6dc8b09dc34f123
 Patch0:		%{name}-sh.patch
 Patch1:		%{name}-link.patch
 Patch2:		%{name}-npapi.patch
-Patch3:		%{name}-missing-files.patch
 URL:		http://zbar.sourceforge.net/
 BuildRequires:	ImageMagick-devel >= 1:6.2.6
 BuildRequires:	autoconf >= 2.68
@@ -54,6 +51,7 @@ BuildRequires:	python3-devel >= 1:3.2
 BuildRequires:	rpm-perlprov >= 4.1-13
 BuildRequires:	rpm-pythonprov
 BuildRequires:	rpmbuild(macros) >= 1.357
+BuildRequires:	sed >= 4.0
 BuildRequires:	xmlto
 BuildRequires:	xorg-lib-libX11-devel
 BuildRequires:	xorg-lib-libXext-devel
@@ -280,9 +278,11 @@ Wtyczka ZBar dla przeglądarek WWW.
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
-%patch3 -p1
+
+%{__sed} -i -e '/^po\/Makefile\.in/d' configure.ac
 
 %build
+%{__gettextize}
 %{__libtoolize}
 %{__aclocal}
 %{__autoconf}
