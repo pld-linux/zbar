@@ -14,7 +14,7 @@ Summary:	ZBar Bar Code Reader
 Summary(pl.UTF-8):	ZBar - czytnik kodów paskowych
 Name:		zbar
 Version:	0.23.92
-Release:	2
+Release:	3
 License:	LGPL v2.1+
 Group:		Libraries
 #Source0Download: https://github.com/mchehab/zbar/releases
