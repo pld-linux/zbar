@@ -6,21 +6,20 @@
 %bcond_without	perl	# Perl module
 %bcond_without	python2	# Python 2.x module
 %bcond_without	python3	# Python 3.x module
-%bcond_without	qt	# Qt widget (Qt5 or Qt4)
-%bcond_with	qt4	# Qt4 instead of Qt5
+%bcond_without	qt	# Qt widget (Qt5 or Qt6)
+%bcond_with	qt6	# Qt6 instead of Qt5
 %bcond_with	tests	# "make test" for Perl module [needs X display]
 #
 Summary:	ZBar Bar Code Reader
 Summary(pl.UTF-8):	ZBar - czytnik kodów paskowych
 Name:		zbar
-Version:	0.23.92
-Release:	3
+Version:	0.23.93
+Release:	1
 License:	LGPL v2.1+
 Group:		Libraries
 #Source0Download: https://github.com/mchehab/zbar/releases
 Source0:	https://github.com/mchehab/zbar/archive/%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	dabc49973afbc7daa6dc8b09dc34f123
-Patch0:		%{name}-sh.patch
+# Source0-md5:	3f69d17f6495de023b59b3539ce5e605
 Patch1:		%{name}-link.patch
 Patch2:		%{name}-npapi.patch
 URL:		http://zbar.sourceforge.net/
@@ -57,10 +56,11 @@ BuildRequires:	xorg-lib-libX11-devel
 BuildRequires:	xorg-lib-libXext-devel
 BuildRequires:	xorg-lib-libXv-devel
 %if %{with qt}
-%if %{with qt4}
-BuildRequires:	QtCore-devel >= 4
-BuildRequires:	QtGui-devel >= 4
-BuildRequires:	qt4-build >= 4
+%if %{with qt6}
+BuildRequires:	Qt6Core-devel >= 6
+BuildRequires:	Qt6Gui-devel >= 6
+BuildRequires:	Qt6Widgets-devel >= 6
+BuildRequires:	qt6-build >= 6
 %else
 BuildRequires:	Qt5Core-devel >= 5
 BuildRequires:	Qt5Gui-devel >= 5
@@ -179,9 +179,10 @@ Summary(pl.UTF-8):	Plik nagłówkowy widgetu Qt4 do skanowania i dekodowania kod
 Group:		X11/Development/Libraries
 Requires:	%{name}-devel = %{version}-%{release}
 Requires:	%{name}-qt = %{version}-%{release}
-%if %{with qt4}
-Requires:	QtCore-devel >= 4
-Requires:	QtGui-devel >= 4
+%if %{with qt6}
+Requires:	Qt6Core-devel >= 6
+Requires:	Qt6Gui-devel >= 6
+Requires:	Qt6Widgets-devel >= 6
 %else
 Requires:	Qt5Core >= 5
 Requires:	Qt5Gui >= 5
@@ -275,7 +276,6 @@ Wtyczka ZBar dla przeglądarek WWW.
 
 %prep
 %setup -q
-%patch0 -p1
 %patch1 -p1
 %patch2 -p1
 
@@ -301,9 +301,11 @@ cd "$builddir"
 	%{!?with_java:--without-java} \
 	--with-python=$pythonbuild \
 	%{!?with_qt:--without-qt} \
-	%{?with_qt4:--without-qt5} \
+	%{!?with_qt6:--without-qt6} \
 	%{?with_npapi:--with-npapi}
-%{__make}
+
+%{__make} \
+	%{!?with_qt6:MOC=moc-qt5}
 cd ..
 done
 
