@@ -276,8 +276,8 @@ Wtyczka ZBar dla przeglądarek WWW.
 
 %prep
 %setup -q
-%patch1 -p1
-%patch2 -p1
+%patch -P 1 -p1
+%patch -P 2 -p1
 
 %{__sed} -i -e '/^po\/Makefile\.in/d' configure.ac
 
