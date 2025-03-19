@@ -49,7 +49,7 @@ BuildRequires:	python3-devel >= 1:3.2
 %endif
 BuildRequires:	rpm-perlprov >= 4.1-13
 BuildRequires:	rpm-pythonprov
-BuildRequires:	rpmbuild(macros) >= 1.357
+BuildRequires:	rpmbuild(macros) >= 2.043
 BuildRequires:	sed >= 4.0
 BuildRequires:	xmlto
 BuildRequires:	xorg-lib-libX11-devel
@@ -295,7 +295,8 @@ for pythonbuild in %{?with_python2:python2} %{?with_python3:python3} %{!?with_py
 builddir=build-${pythonbuild}
 install -d "$builddir"
 cd "$builddir"
-../%configure \
+%define	configuredir	..
+%configure \
 	--disable-silent-rules \
 	%{?with_gtk2:--with-gtk=gtk2} \
 	%{!?with_java:--without-java} \
