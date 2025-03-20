@@ -291,11 +291,11 @@ Wtyczka ZBar dla przeglądarek WWW.
 # for ">>" in nested template usage
 CXXFLAGS="%{rpmcxxflags} -std=c++11"
 
+%define	configuredir	..
 for pythonbuild in %{?with_python2:python2} %{?with_python3:python3} %{!?with_python2:%{!?with_python3:no}} ; do
 builddir=build-${pythonbuild}
 install -d "$builddir"
 cd "$builddir"
-%define	configuredir	..
 %configure \
 	--disable-silent-rules \
 	%{?with_gtk2:--with-gtk=gtk2} \
