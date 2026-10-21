@@ -1,25 +1,8 @@
-diff -urNp -x '*.orig' zbar-0.23.90.org/configure.ac zbar-0.23.90/configure.ac
---- zbar-0.23.90.org/configure.ac	2021-03-02 23:13:39.976344894 +0100
-+++ zbar-0.23.90/configure.ac	2021-03-02 23:13:40.129677725 +0100
-@@ -485,8 +485,8 @@ AC_ARG_WITH([npapi],
-   [with_npapi="no"])
- 
- AS_IF([test "x$with_npapi" != "xno"],
--  [PKG_CHECK_MODULES([NPAPI], [firefox-plugin])
--   NPAPI_VERSION=`$PKG_CONFIG firefox-plugin --modversion`
-+  [PKG_CHECK_MODULES([NPAPI], [mozilla-plugin])
-+   NPAPI_VERSION=`$PKG_CONFIG mozilla-plugin --modversion`
-    AC_MSG_NOTICE([using firefox-plugin version $NPAPI_VERSION])])
- 
- AM_CONDITIONAL([HAVE_NPAPI], [test "x$with_npapi" = "xyes"])
-diff -urNp -x '*.orig' zbar-0.23.90.org/plugin/Makefile.am.inc zbar-0.23.90/plugin/Makefile.am.inc
---- zbar-0.23.90.org/plugin/Makefile.am.inc	2021-02-13 10:39:00.000000000 +0100
-+++ zbar-0.23.90/plugin/Makefile.am.inc	2021-03-02 23:13:40.129677725 +0100
-@@ -1,5 +1,5 @@
- lib_LTLIBRARIES += plugin/libzbarplugin.la
- plugin_libzbarplugin_la_SOURCES = \
-    plugin/plugin.c
--plugin_libzbarplugin_la_CPPFLAGS = $(MOZILLA_CFLAGS) $(AM_CPPFLAGS)
--plugin_libzbarplugin_la_LDFLAGS = $(MOZILLA_LIBS) $(AM_LDFLAGS)
-+plugin_libzbarplugin_la_CPPFLAGS = $(NPAPI_CFLAGS) $(AM_CPPFLAGS)
-+plugin_libzbarplugin_la_LDFLAGS = $(NPAPI_LIBS) $(AM_LDFLAGS)
+--- zbar-0.23.95/plugin/meson.build.orig	2026-10-11 11:22:25.000000000 +0200
++++ zbar-0.23.95/plugin/meson.build	2026-10-21 19:34:09.627836302 +0200
+@@ -1,4 +1,4 @@
+-npapi_dep = dependency('firefox-plugin', required: get_option('npapi'))
++npapi_dep = dependency('mozilla-plugin', required: get_option('npapi'))
+ if npapi_dep.found()
+   library(
+     'zbarplugin', 'plugin.c',

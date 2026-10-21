@@ -1,43 +1,52 @@
 #
 # Conditional build:
-%bcond_with	java	# Java interface [some file missing]
+%bcond_with	java	# Java interface [TODO: fix packaging]
 %bcond_with	npapi	# NPAPI plugin for Firefox/OpenOffice [nothing really yet]
 %bcond_with	gtk2	# GTK+ 2.x instead of 3.x
 %bcond_without	perl	# Perl module
 %bcond_without	python2	# Python 2.x module
 %bcond_without	python3	# Python 3.x module
 %bcond_without	qt	# Qt widget (Qt5 or Qt6)
-%bcond_with	qt6	# Qt6 instead of Qt5
-%bcond_with	tests	# "make test" for Perl module [needs X display]
+%bcond_with	qt6	# Qt6 (experimental [broken as of 0.23.95]) instead of Qt5
+%bcond_with	tests	# unit tests for Perl module [needs X display]
 #
+%if %{with java}
+%{?_use_default_jdk}
+%endif
 Summary:	ZBar Bar Code Reader
 Summary(pl.UTF-8):	ZBar - czytnik kodów paskowych
 Name:		zbar
-Version:	0.23.93
-Release:	6
+Version:	0.23.95
+Release:	1
 License:	LGPL v2.1+
 Group:		Libraries
 #Source0Download: https://github.com/mchehab/zbar/releases
 Source0:	https://github.com/mchehab/zbar/archive/%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	3f69d17f6495de023b59b3539ce5e605
-Patch1:		%{name}-link.patch
+# Source0-md5:	4196d644a338733b59f9d27bf5521a34
+Patch0:		%{name}-pygtk.patch
 Patch2:		%{name}-npapi.patch
 URL:		http://zbar.sourceforge.net/
 BuildRequires:	ImageMagick-devel >= 1:6.2.6
-BuildRequires:	autoconf >= 2.68
-BuildRequires:	automake >= 1:1.13
 BuildRequires:	dbus-devel >= 1.0
+BuildRequires:	gcc >= 5:3.2
 BuildRequires:	gettext-tools >= 0.18
 BuildRequires:	glib2-devel >= 2.0
 BuildRequires:	gobject-introspection-devel >= 0.6.7
 %{?with_gtk2:BuildRequires:	gtk+2-devel >= 2.0}
 %{!?with_gtk2:BuildRequires:	gtk+3-devel >= 3.0}
-%{?with_java:BuildRequires:	jdk}
+%if %{with java}
+%{?buildrequires_jdk}
+BuildRequires:	jpackage-utils
+%endif
 BuildRequires:	libjpeg-devel
-BuildRequires:	libstdc++-devel
-BuildRequires:	libtool >= 2:2.2
+BuildRequires:	libstdc++-devel >= 6:4.7
 BuildRequires:	libv4l-devel
-%{?with_perl:BuildRequires:	perl-devel >= 1:5.8.0}
+BuildRequires:	meson >= 0.61.0
+BuildRequires:	ninja >= 1.5
+%if %{with perl}
+%{?with_tests:BuildRequires:	perl-Test-Simple}
+BuildRequires:	perl-devel >= 1:5.8.0
+%endif
 BuildRequires:	pkgconfig
 %{?with_npapi:BuildRequires:	pkgconfig(mozilla-plugin)}
 %if %{with python2}
@@ -57,10 +66,11 @@ BuildRequires:	xorg-lib-libXext-devel
 BuildRequires:	xorg-lib-libXv-devel
 %if %{with qt}
 %if %{with qt6}
-BuildRequires:	Qt6Core-devel >= 6
-BuildRequires:	Qt6Gui-devel >= 6
-BuildRequires:	Qt6Widgets-devel >= 6
-BuildRequires:	qt6-build >= 6
+BuildRequires:	Qt6Core-devel >= 6.2
+BuildRequires:	Qt6Gui-devel >= 6.2
+BuildRequires:	Qt6Widgets-devel >= 6.2
+BuildRequires:	libstdc++-devel >= 6:7
+BuildRequires:	qt6-build >= 6.2
 %else
 BuildRequires:	Qt5Core-devel >= 5
 BuildRequires:	Qt5Gui-devel >= 5
@@ -69,7 +79,7 @@ BuildRequires:	Qt5X11Extras-devel >= 5
 BuildRequires:	qt5-build >= 5
 %endif
 %endif
-Requires:	ImageMagick-libs >= 1:6.2.6
+Requires:	ImageMagick-libs%{?_isa} >= 1:6.2.6
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -97,10 +107,10 @@ Qt, GTK+ oraz PyGTK.
 Summary:	C and C++ header files for ZBar library
 Summary(pl.UTF-8):	Pliki nagłówkowe C i C++ dla biblioteki ZBar
 Group:		Development/Libraries
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name}%{?_isa} = %{version}-%{release}
 Requires:	libjpeg-devel
-Requires:	xorg-lib-libXext-devel
-Requires:	xorg-lib-libXv-devel
+Requires:	xorg-lib-libXext-devel%{?_isa}
+Requires:	xorg-lib-libXv-devel%{?_isa}
 
 %description devel
 C and C++ header files for ZBar library.
@@ -112,7 +122,7 @@ Pliki nagłówkowe C i C++ dla biblioteki ZBar.
 Summary:	Static ZBar library
 Summary(pl.UTF-8):	Statyczna biblioteka ZBar
 Group:		Development/Libraries
-Requires:	%{name}-devel = %{version}-%{release}
+Requires:	%{name}-devel%{?_isa} = %{version}-%{release}
 
 %description static
 Static ZBar library.
@@ -122,99 +132,99 @@ Statyczna biblioteka ZBar.
 
 %package gtk
 Summary:	Bar code scanning and decoding GTK+ widget
-Summary(pl.UTF-8):	Widget GTK+ do skanowania i dekodowania kodów paskowych
+Summary(pl.UTF-8):	Widżet GTK+ do skanowania i dekodowania kodów paskowych
 Group:		X11/Libraries
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name}%{?_isa} = %{version}-%{release}
 
 %description gtk
 Bar code scanning and decoding GTK+ widget.
 
 %description gtk -l pl.UTF-8
-Widget GTK+ do skanowania i dekodowania kodów paskowych.
+Widżet GTK+ do skanowania i dekodowania kodów paskowych.
 
 %package gtk-devel
 Summary:	Header file for bar code scanning and decoding GTK+ widget
-Summary(pl.UTF-8):	Plik nagłówkowy widgetu GTK+ do skanowania i dekodowania kodów paskowych
+Summary(pl.UTF-8):	Plik nagłówkowy widżetu GTK+ do skanowania i dekodowania kodów paskowych
 Group:		X11/Development/Libraries
-Requires:	%{name}-devel = %{version}-%{release}
-Requires:	%{name}-gtk = %{version}-%{release}
-%{?with_gtk2:Requires:	gtk+2-devel >= 2.0}
-%{!?with_gtk2:Requires:	gtk+3-devel >= 3.0}
+Requires:	%{name}-devel%{?_isa} = %{version}-%{release}
+Requires:	%{name}-gtk%{?_isa} = %{version}-%{release}
+%{?with_gtk2:Requires:	gtk+2-devel%{?_isa} >= 2.0}
+%{!?with_gtk2:Requires:	gtk+3-devel%{?_isa} >= 3.0}
 
 %description gtk-devel
 Header file for bar code scanning and decoding GTK+ widget.
 
 %description gtk-devel -l pl.UTF-8
-Plik nagłówkowy widgetu GTK+ do skanowania i dekodowania kodów
+Plik nagłówkowy widżetu GTK+ do skanowania i dekodowania kodów
 paskowych.
 
 %package gtk-static
 Summary:	Bar code scanning and decoding GTK+ widget - static library
-Summary(pl.UTF-8):	Widget GTK+ do skanowania i dekodowania kodów paskowych - biblioteka statyczna
+Summary(pl.UTF-8):	Widżet GTK+ do skanowania i dekodowania kodów paskowych - biblioteka statyczna
 Group:		X11/Development/Libraries
-Requires:	%{name}-gtk-devel = %{version}-%{release}
+Requires:	%{name}-gtk-devel%{?_isa} = %{version}-%{release}
 
 %description gtk-static
 Bar code scanning and decoding GTK+ widget - static library.
 
 %description gtk-static -l pl.UTF-8
-Widget GTK+ do skanowania i dekodowania kodów paskowych - biblioteka
+Widżet GTK+ do skanowania i dekodowania kodów paskowych - biblioteka
 statyczna.
 
 %package qt
-Summary:	Bar code scanning and decoding Qt4 widget
-Summary(pl.UTF-8):	Widget Qt4 do skanowania i dekodowania kodów paskowych
+Summary:	Bar code scanning and decoding Qt widget
+Summary(pl.UTF-8):	Widżet Qt do skanowania i dekodowania kodów paskowych
 Group:		X11/Libraries
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name}%{?_isa} = %{version}-%{release}
 
 %description qt
-Bar code scanning and decoding Qt4 widget.
+Bar code scanning and decoding Qt widget.
 
 %description qt -l pl.UTF-8
-Widget Qt4 do skanowania i dekodowania kodów paskowych.
+Widżet Qt do skanowania i dekodowania kodów paskowych.
 
 %package qt-devel
-Summary:	Header file for bar code scanning and decoding Qt4 widget
-Summary(pl.UTF-8):	Plik nagłówkowy widgetu Qt4 do skanowania i dekodowania kodów paskowych
+Summary:	Header file for bar code scanning and decoding Qt widget
+Summary(pl.UTF-8):	Plik nagłówkowy widżetu Qt do skanowania i dekodowania kodów paskowych
 Group:		X11/Development/Libraries
-Requires:	%{name}-devel = %{version}-%{release}
-Requires:	%{name}-qt = %{version}-%{release}
+Requires:	%{name}-devel%{?_isa} = %{version}-%{release}
+Requires:	%{name}-qt%{?_isa} = %{version}-%{release}
 %if %{with qt6}
-Requires:	Qt6Core-devel >= 6
-Requires:	Qt6Gui-devel >= 6
-Requires:	Qt6Widgets-devel >= 6
+Requires:	Qt6Core-devel%{?_isa} >= 6
+Requires:	Qt6Gui-devel%{?_isa} >= 6
+Requires:	Qt6Widgets-devel%{?_isa} >= 6
 %else
-Requires:	Qt5Core >= 5
-Requires:	Qt5Gui >= 5
-Requires:	Qt5Widgets >= 5
-Requires:	Qt5X11Extras >= 5
+Requires:	Qt5Core%{?_isa} >= 5
+Requires:	Qt5Gui%{?_isa} >= 5
+Requires:	Qt5Widgets%{?_isa} >= 5
+Requires:	Qt5X11Extras%{?_isa} >= 5
 %endif
 
 %description qt-devel
-Header file for bar code scanning and decoding Qt4 widget.
+Header file for bar code scanning and decoding Qt widget.
 
 %description qt-devel -l pl.UTF-8
-Plik nagłówkowy widgetu Qt4 do skanowania i dekodowania kodów
+Plik nagłówkowy widżetu Qt do skanowania i dekodowania kodów
 paskowych.
 
 %package qt-static
-Summary:	Bar code scanning and decoding Qt4 widget - static library
-Summary(pl.UTF-8):	Widget Qt4 do skanowania i dekodowania kodów paskowych - biblioteka statyczna
+Summary:	Bar code scanning and decoding Qt widget - static library
+Summary(pl.UTF-8):	Widżet Qt do skanowania i dekodowania kodów paskowych - biblioteka statyczna
 Group:		X11/Development/Libraries
-Requires:	%{name}-qt-devel = %{version}-%{release}
+Requires:	%{name}-qt-devel%{?_isa} = %{version}-%{release}
 
 %description qt-static
-Bar code scanning and decoding Qt4 widget - static library.
+Bar code scanning and decoding Qt widget - static library.
 
 %description qt-static -l pl.UTF-8
-Widget Qt4 do skanowania i dekodowania kodów paskowych - biblioteka
+Widżet Qt do skanowania i dekodowania kodów paskowych - biblioteka
 statyczna.
 
 %package -n perl-Barcode-ZBar
 Summary:	Perl interface to ZBar bar code reader
 Summary(pl.UTF-8):	Interfejs Perla do czytnika kodów paskowych ZBar
 Group:		Development/Languages/Perl
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name}%{?_isa} = %{version}-%{release}
 
 %description -n perl-Barcode-ZBar
 Perl interface to ZBar bar code reader.
@@ -226,8 +236,8 @@ Interfejs Perla do czytnika kodów paskowych ZBar.
 Summary:	Python 2 interface to ZBar bar code reader
 Summary(pl.UTF-8):	Interfejs Pythona 2 do czytnika kodów paskowych ZBar
 Group:		Libraries/Python
-Requires:	%{name} = %{version}-%{release}
-Requires:	python-libs >= 1:2.7.0
+Requires:	%{name}%{?_isa} = %{version}-%{release}
+Requires:	python-libs%{?_isa} >= 1:2.7.0
 
 %description -n python-zbar
 Python 2 interface to ZBar bar code reader.
@@ -239,9 +249,9 @@ Interfejs Pythona 2 do czytnika kodów paskowych ZBar.
 Summary:	Bar code scanning and decoding PyGTK widget
 Summary(pl.UTF-8):	Widget PyGTK do skanowania i dekodowania kodów paskowych
 Group:		Libraries/Python
-Requires:	%{name}-gtk = %{version}-%{release}
-Requires:	python-libs >= 1:2.7.0
-Requires:	python-pygtk-gtk >= 2:2.0
+Requires:	%{name}-gtk%{?_isa} = %{version}-%{release}
+Requires:	python-libs%{?_isa} >= 1:2.7.0
+Requires:	python-pygtk-gtk%{?_isa} >= 2:2.0
 
 %description -n python-zbar-pygtk
 Bar code scanning and decoding PyGTK widget.
@@ -253,7 +263,7 @@ Widget PyGTK do skanowania i dekodowania kodów paskowych.
 Summary:	Python 3 interface to ZBar bar code reader
 Summary(pl.UTF-8):	Interfejs Pythona 3 do czytnika kodów paskowych ZBar
 Group:		Libraries/Python
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name}%{?_isa} = %{version}-%{release}
 
 %description -n python3-zbar
 Python 3 interface to ZBar bar code reader.
@@ -265,7 +275,7 @@ Interfejs Pythona 3 do czytnika kodów paskowych ZBar.
 Summary:	ZBar plugin for Web browsers
 Summary(pl.UTF-8):	Wtyczka ZBar dla przeglądarek WWW
 Group:		X11/Applications/Graphics
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name}%{?_isa} = %{version}-%{release}
 Requires:	browser-plugins >= 2.0
 
 %description -n browser-plugin-zbar
@@ -276,38 +286,32 @@ Wtyczka ZBar dla przeglądarek WWW.
 
 %prep
 %setup -q
-%patch -P 1 -p1
-%patch -P 2 -p1
+%patch -P0 -p1
+%patch -P2 -p1
 
-%{__sed} -i -e '/^po\/Makefile\.in/d' configure.ac
+%{__mv} pygtk python/pygtk
 
 %build
-%{__gettextize}
-%{__libtoolize}
-%{__aclocal}
-%{__autoconf}
-%{__autoheader}
-%{__automake}
-# for ">>" in nested template usage
-CXXFLAGS="%{rpmcxxflags} -std=c++11"
-
-%define	configuredir	..
+%define _vpath_builddir "$builddir"
 for pythonbuild in %{?with_python2:python2} %{?with_python3:python3} %{!?with_python2:%{!?with_python3:no}} ; do
-builddir=build-${pythonbuild}
-install -d "$builddir"
-cd "$builddir"
-%configure \
-	--disable-silent-rules \
-	%{?with_gtk2:--with-gtk=gtk2} \
-	%{!?with_java:--without-java} \
-	--with-python=$pythonbuild \
-	%{!?with_qt:--without-qt} \
-	%{!?with_qt6:--without-qt6} \
-	%{?with_npapi:--with-npapi}
+builddir="build-$pythonbuild"
+%meson \
+	-Ddbus=enabled \
+	-Dgraphicsmagick=disabled \
+	-Dgtk=%{?with_gtk2:gtk2}%{!?with_gtk2:gtk3} \
+	-Dimagemagick=enabled \
+	-Djava=%{__enabled_disabled java} \
+	-Djpeg=enabled \
+	-Dnls=enabled \
+	%{?with_npapi:-Dnpapi=enabled} \
+	-Dpython=$pythonbuild \
+	%{!?with_qt:-Dqt=false} \
+	%{?with_qt6:-Dqt6=true} \
+	-Dx11=enabled \
+	-Dxshm=enabled \
+	-Dxv=enabled
 
-%{__make} \
-	%{!?with_qt6:MOC=moc-qt5}
-cd ..
+%meson_build
 done
 
 %if %{with perl}
@@ -330,22 +334,13 @@ rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT%{_datadir}/%{name}
 
 for pythonbuild in %{?with_python2:python2} %{?with_python3:python3} %{!?with_python2:%{!?with_python3:no}} ; do
-builddir=build-${pythonbuild}
-%{__make} -C "$builddir" install \
-	DESTDIR=$RPM_BUILD_ROOT
+builddir="build-${pythonbuild}"
+
+%meson_install
 done
 
-# obsoleted by pkg-config
-%{__rm} $RPM_BUILD_ROOT%{_libdir}/libzbar*.la
 # packaged as %doc
 %{__rm} -r $RPM_BUILD_ROOT%{_docdir}/zbar
-
-%if %{with python2}
-%{__rm} $RPM_BUILD_ROOT%{py_sitedir}/*.la
-%endif
-%if %{with python3}
-%{__rm} $RPM_BUILD_ROOT%{py3_sitedir}/*.la
-%endif
 
 %if %{with perl}
 %{__make} -C perl install \
@@ -361,7 +356,6 @@ rmdir $RPM_BUILD_ROOT%{perl_vendorarch}/Barcode/ZBar
 %if %{with npapi}
 install -d $RPM_BUILD_ROOT%{_browserpluginsdir}
 %{__mv} $RPM_BUILD_ROOT%{_libdir}/libzbarplugin.so* $RPM_BUILD_ROOT%{_browserpluginsdir}
-%{__rm} $RPM_BUILD_ROOT%{_libdir}/libzbarplugin.{la,a}
 %endif
 
 %clean
@@ -387,11 +381,11 @@ fi
 %files
 %defattr(644,root,root,755)
 # COPYING contains license summary, not LGPL text
-%doc COPYING ChangeLog NEWS.md README.md TODO.md
+%doc COPYING ChangeLog NEWS.md README.md SECURITY.md TODO.md
 %attr(755,root,root) %{_bindir}/zbarcam
 %attr(755,root,root) %{_bindir}/zbarimg
-%attr(755,root,root) %{_libdir}/libzbar.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libzbar.so.0
+%{_libdir}/libzbar.so.*.*.*
+%ghost %{_libdir}/libzbar.so.0
 %{_libdir}/girepository-1.0/ZBar-1.0.typelib
 # for zbarcam
 /etc/dbus-1/system.d/org.linuxtv.Zbar.conf
@@ -401,7 +395,7 @@ fi
 
 %files devel
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libzbar.so
+%{_libdir}/libzbar.so
 %{_datadir}/gir-1.0/ZBar-1.0.gir
 # C
 %{_includedir}/zbar.h
@@ -425,12 +419,13 @@ fi
 %files gtk
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/zbarcam-gtk
-%attr(755,root,root) %{_libdir}/libzbargtk.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libzbargtk.so.0
+%{_libdir}/libzbargtk.so.*.*.*
+%ghost %{_libdir}/libzbargtk.so.0
+%{_mandir}/man1/zbarcam-gtk.1*
 
 %files gtk-devel
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libzbargtk.so
+%{_libdir}/libzbargtk.so
 %{_includedir}/zbar/zbargtk.h
 %{_pkgconfigdir}/zbar-gtk.pc
 
@@ -442,12 +437,13 @@ fi
 %files qt
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/zbarcam-qt
-%attr(755,root,root) %{_libdir}/libzbarqt.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libzbarqt.so.0
+%{_libdir}/libzbarqt.so.*.*.*
+%ghost %{_libdir}/libzbarqt.so.0
+%{_mandir}/man1/zbarcam-qt.1*
 
 %files qt-devel
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libzbarqt.so
+%{_libdir}/libzbarqt.so
 %{_includedir}/zbar/QZBar.h
 %{_includedir}/zbar/QZBarImage.h
 %{_pkgconfigdir}/zbar-qt.pc
@@ -457,6 +453,11 @@ fi
 %{_libdir}/libzbarqt.a
 %endif
 
+# TODO: fix locations
+#files -n java-zbar
+#   /usr/share/zbar/lib/libzbarjni.so
+#   /usr/share/zbar/lib/zbar.jar
+
 %if %{with perl}
 %files -n perl-Barcode-ZBar
 %defattr(644,root,root,755)
@@ -464,28 +465,28 @@ fi
 %{perl_vendorarch}/Barcode/ZBar.pm
 %dir %{perl_vendorarch}/auto/Barcode
 %dir %{perl_vendorarch}/auto/Barcode/ZBar
-%attr(755,root,root) %{perl_vendorarch}/auto/Barcode/ZBar/ZBar.so
+%{perl_vendorarch}/auto/Barcode/ZBar/ZBar.so
 %{_mandir}/man3/Barcode::ZBar*.3pm*
 %endif
 
 %if %{with python2}
 %files -n python-zbar
 %defattr(644,root,root,755)
-%attr(755,root,root) %{py_sitedir}/zbar.so
+%{py_sitedir}/zbar.so
 
 %files -n python-zbar-pygtk
 %defattr(644,root,root,755)
-%attr(755,root,root) %{py_sitedir}/zbarpygtk.so
+%{py_sitedir}/zbarpygtk.so
 %endif
 
 %if %{with python3}
 %files -n python3-zbar
 %defattr(644,root,root,755)
-%attr(755,root,root) %{py3_sitedir}/zbar.so
+%{py3_sitedir}/zbar.cpython-*.so
 %endif
 
 %if %{with npapi}
 %files -n browser-plugin-zbar
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_browserpluginsdir}/libzbarplugin.so*
+%{_browserpluginsdir}/libzbarplugin.so*
 %endif

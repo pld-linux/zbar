@@ -1,0 +1,32 @@
+Recent meson forbits referencing parent directory in subdir()
+--- zbar-0.23.95/python/meson.build.orig	2026-10-11 11:22:25.000000000 +0200
++++ zbar-0.23.95/python/meson.build	2026-10-21 19:44:41.331080738 +0200
+@@ -29,7 +29,7 @@ if py.found()
+       install: true,
+     )
+     if py.language_version().version_compare('<3') and gtk_found
+-      subdir('../pygtk')
++      subdir('pygtk')
+     endif
+   endif
+ endif
+--- zbar-0.23.95/pygtk/meson.build.orig	2026-10-11 11:22:25.000000000 +0200
++++ zbar-0.23.95/pygtk/meson.build	2026-10-21 20:02:55.531819611 +0200
+@@ -2,14 +2,14 @@ pygtk_dep = dependency('pygtk-2.0', requ
+ if pygtk_dep.found()
+   codegendir = pygtk_dep.get_variable(pkgconfig: 'codegendir')
+   defsdir = pygtk_dep.get_variable(pkgconfig: 'defsdir')
+-  h2def = codegendir / 'h2def.py'
++  h2def = codegendir / 'h2def.pyc'
+   codegen = find_program('pygobject-codegen-2.0',
+                          'pygtk-codegen-2.0', 'pygtk-codegen')
+   pygtk_defs = custom_target(
+     'zbarpygtk-defs',
+-    input: '../include/zbar/zbargtk.h',
++    input: '../../include/zbar/zbargtk.h',
+     output: 'zbarpygtk.defs',
+-    command: [py, files('../tools/pygtk_defs.py'), h2def, '@INPUT@'],
++    command: [py, files('../../tools/pygtk_defs.py'), h2def, '@INPUT@'],
+     capture: true,
+   )
+   pygtk_source = custom_target(
