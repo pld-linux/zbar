@@ -320,7 +320,7 @@ cd perl
 %{__perl} Makefile.PL \
 	INSTALLDIRS=vendor \
 	INC="-I${TOPDIR}/include" \
-	LIBS="-L${TOPDIR}/$builddir/zbar/.libs -lzbar"
+	LIBS="-L${TOPDIR}/$builddir/zbar -lzbar"
 
 %{__make} \
 	CC="%{__cc}" \
